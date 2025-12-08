@@ -3,7 +3,7 @@ extends VehicleBody3D
 const ENGINE_POWER = 2000.0
 const START_POWER = 2500.0
 const MAX_TURN_ANGLE = 0.8
-const NORMAL_SLIP = 4.0
+const NORMAL_SLIP = 2.0
 const BRAKE_SLIP = 1.3
 const COAST_BRAKE = 0.3
 const BRAKE = 30

@@ -138,7 +138,7 @@ transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, -0.772992, 1.02233, 
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.74007, 6.58426, -3.48515)
 
 [node name="TEST-course" parent="." instance=ExtResource("3_mhxa5")]
-transform = Transform3D(2.41048, 0, 0, 0, 1, 0, 0, 0, 2.41048, 0, -1.33, 132.344)
+transform = Transform3D(2.41048, 0, 0, 0, 1, 0, 0, 0, 2.41048, 0, -39.2477, 132.344)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
