@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://bbb2ajnxdb583" path="res://scenes/world.tscn" id="1_vs84v"]
 [ext_resource type="PackedScene" uid="uid://trd066d5eji4" path="res://scenes/Board.tscn" id="2_ntstd"]
 [ext_resource type="PackedScene" uid="uid://bf8o6psioclkp" path="res://scenes/debug_canvas.tscn" id="3_43o5b"]
+[ext_resource type="PackedScene" uid="uid://p77c3icxmvrc" path="res://scenes/test_course.tscn" id="4_3etub"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4yea5"]
 sky_top_color = Color(0.640961, 0.701626, 0.786195, 1)
@@ -32,7 +33,10 @@ shadow_enabled = true
 [node name="Node3D" parent="." unique_id=797555847 instance=ExtResource("1_vs84v")]
 
 [node name="CharacterBody3D" parent="." unique_id=2130102268 instance=ExtResource("2_ntstd")]
-transform = Transform3D(-4.579816, 0, -0.041006178, 0, 4.579999, 0, 0.041006178, 0, -4.579816, 0, 2.5703697, 0)
+transform = Transform3D(4.5682554, 0, -0.3277775, 0, 4.5799994, 0, 0.3277775, 0, 4.5682554, 0, 12.145393, 0)
 
 [node name="DebugCanvas" parent="." unique_id=1189168381 node_paths=PackedStringArray("player") instance=ExtResource("3_43o5b")]
 player = NodePath("../CharacterBody3D")
+
+[node name="TEST-1" parent="." unique_id=1401504092 instance=ExtResource("4_3etub")]
+transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 11.744835, 0)
