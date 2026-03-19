@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://c4pihsn43gt5g"]
+
+[node name="TestTrackBody" type="StaticBody3D" unique_id=703994100]

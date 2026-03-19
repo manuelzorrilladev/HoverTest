@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bbb2ajnxdb583"]
+
+[ext_resource type="Texture2D" uid="uid://y4ut1kuuy53p" path="res://assets/dark-grid.png" id="1_tn4iu"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_srbp1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dj0a1"]
+albedo_texture = ExtResource("1_tn4iu")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_n53bx"]
+size = Vector2(3000, 3000)
+
+[node name="Node3D" type="Node3D" unique_id=1504365674]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=361000310]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=656815842]
+shape = SubResource("WorldBoundaryShape3D_srbp1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=451459719]
+material_override = SubResource("StandardMaterial3D_dj0a1")
+mesh = SubResource("PlaneMesh_n53bx")

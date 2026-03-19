@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cr3awc0d1ttrx"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_nbrcf"]
+data = PackedVector3Array(-0.5175, 0.16499999, 0.5, 0.5175, -0.16499999, 0.5, -0.5175, -0.16499999, 0.5, -0.5175, 0.16499999, -0.5, -0.5175, -0.16499999, -0.5, 0.5175, -0.16499999, -0.5, -0.5175, 0.16499999, 0.5, -0.5175, 0.16499999, -0.5, 0.5175, -0.16499999, 0.5, -0.5175, 0.16499999, -0.5, 0.5175, -0.16499999, -0.5, 0.5175, -0.16499999, 0.5, -0.5175, 0.16499999, -0.5, -0.5175, 0.16499999, 0.5, -0.5175, -0.16499999, -0.5, -0.5175, 0.16499999, 0.5, -0.5175, -0.16499999, 0.5, -0.5175, -0.16499999, -0.5, -0.5175, -0.16499999, 0.5, 0.5175, -0.16499999, 0.5, -0.5175, -0.16499999, -0.5, 0.5175, -0.16499999, 0.5, 0.5175, -0.16499999, -0.5, -0.5175, -0.16499999, -0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hkkcj"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_0mf76"]
+material = SubResource("StandardMaterial3D_hkkcj")
+left_to_right = 0.0
+size = Vector3(1.035, 0.33, 1)
+
+[node name="Node3D" type="StaticBody3D" unique_id=1689784433]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1306580086]
+transform = Transform3D(0.815, 0, 0, 0, 0.815, 0, 0, 0, 0.815, 0, 0.062296733, 0)
+shape = SubResource("ConcavePolygonShape3D_nbrcf")
+debug_color = Color(0, 6.0036535, 12.764836, 0.41960785)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D" unique_id=663989182]
+mesh = SubResource("PrismMesh_0mf76")
+skeleton = NodePath("../..")

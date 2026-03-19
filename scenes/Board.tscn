@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://trd066d5eji4"]
+
+[ext_resource type="Script" uid="uid://dllxwik4rwx0x" path="res://scripts/boardMovement.gd" id="1_o47f0"]
+[ext_resource type="ArrayMesh" uid="uid://vndb18qag0lo" path="res://assets/test-models/hover-test.obj" id="2_otxgx"]
+[ext_resource type="Script" uid="uid://dfpsxccr6iaay" path="res://scripts/springArm3D.gd" id="2_vcu8k"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hq5ls"]
+size = Vector3(2.0582056, 0.7029004, 0.295)
+
+[node name="BoardCharacter" type="CharacterBody3D" unique_id=1085046359]
+wall_min_slide_angle = 0.58294
+script = ExtResource("1_o47f0")
+max_speed = 20.0
+acceleration = 1.5
+friction = 1.0
+brake = 5.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=564898361]
+transform = Transform3D(-4.371139e-08, -1, 4.371139e-08, 0, -4.371139e-08, -1, 1, -4.371139e-08, 1.9106855e-15, -0.0023290794, -1.0180734e-10, -0.029957175)
+shape = SubResource("BoxShape3D_hq5ls")
+debug_color = Color(0, 0, 0.69803923, 1)
+
+[node name="Pivot" type="Node3D" parent="." unique_id=1934922813]
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Pivot" unique_id=953248753]
+mesh = ExtResource("2_otxgx")
+skeleton = NodePath("../../CollisionShape3D")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="." unique_id=332288417]
+transform = Transform3D(1, 0, 0, 0, 0.99496, 0.100275, 0, -0.100275, 0.99496, 0, 1.84902, 1.7442)
+spring_length = 4.0
+margin = 0.1
+script = ExtResource("2_vcu8k")
+tilt_upper_limit = 180.0
+tilt_lower_limit = -180.0
+enable_horizontal_rotation = true
+
+[node name="Camera3D" type="Camera3D" parent="SpringArm3D" unique_id=262424198]
