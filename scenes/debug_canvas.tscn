@@ -20,3 +20,6 @@ layout_mode = 2
 
 [node name="InputLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=27104750]
 layout_mode = 2
+
+[node name="RotationLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1852883780]
+layout_mode = 2

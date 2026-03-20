@@ -34,9 +34,13 @@ shadow_enabled = true
 
 [node name="CharacterBody3D" parent="." unique_id=2130102268 instance=ExtResource("2_ntstd")]
 transform = Transform3D(4.5682554, 0, -0.3277775, 0, 4.5799994, 0, 0.3277775, 0, 4.5682554, 0, 12.145393, 0)
+brake_rotation_amount = 0.8
+brake_rotation_speed = 7.0
 
 [node name="DebugCanvas" parent="." unique_id=1189168381 node_paths=PackedStringArray("player") instance=ExtResource("3_43o5b")]
 player = NodePath("../CharacterBody3D")
 
 [node name="TEST-1" parent="." unique_id=1401504092 instance=ExtResource("4_3etub")]
-transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 11.744835, 0)
+transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, -43.3928, 0)
+
+[editable path="DebugCanvas"]
