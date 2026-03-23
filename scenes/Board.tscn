@@ -7,6 +7,9 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_hq5ls"]
 size = Vector3(2.0582056, 0.7029004, 0.295)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_66b1s"]
+albedo_color = Color(1, 0.30588236, 1, 1)
+
 [node name="BoardCharacter" type="CharacterBody3D" unique_id=1085046359]
 wall_min_slide_angle = 0.58294
 script = ExtResource("1_o47f0")
@@ -16,6 +19,7 @@ friction = 0.5
 brake = 1.0
 brake_rotation_amount = 10.0
 brake_rotation_speed = 5.0
+boost_max_speed = 50.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=564898361]
 transform = Transform3D(-4.371139e-08, -1, 4.371139e-08, 0, -4.371139e-08, -1, 1, -4.371139e-08, 1.9106855e-15, -0.0023290794, -1.0180734e-10, -0.029957175)
@@ -27,6 +31,7 @@ debug_color = Color(0, 0, 0.69803923, 1)
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="Pivot" unique_id=953248753]
 mesh = ExtResource("2_otxgx")
 skeleton = NodePath("../../CollisionShape3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_66b1s")
 
 [node name="SpringArm3D" type="SpringArm3D" parent="." unique_id=332288417]
 transform = Transform3D(1, 0, 0, 0, 0.99496, 0.100275, 0, -0.100275, 0.99496, 0, 1.84902, 1.7442)

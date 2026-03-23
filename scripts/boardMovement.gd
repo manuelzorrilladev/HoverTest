@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-enum States { NORMAL,BRAKING, DRIFTING, JUMPING, HEAT, OVERHEAT }
+enum States { NORMAL,BRAKING,BOOSTING, DRIFTING, JUMPING, HEAT, OVERHEAT }
 
 # --- Variables de Control de Estado ---
 var current_state: States = States.NORMAL:
@@ -32,6 +32,19 @@ var current_state: States = States.NORMAL:
 @export var brake_rotation_amount: float = 0.8
 @export var brake_rotation_speed: float = 7.0
 
+
+@export_group("Boost Settings")
+@export var boost_force: float = 30.0      # Impulso de velocidad instantáneo
+@export var boost_max_speed: float = 80.0  # El nuevo límite de velocidad durante el boost
+@export var boost_duration: float = 2.0    # Cuánto dura el efecto (segundos)
+@export var boost_cooldown: float = 5.0    # Tiempo antes de poder usarlo de nuevo
+
+var boost_timer: float = 0.0
+var cooldown_timer: float = 0.0
+var is_boosting: bool = false
+var original_max_speed: float # Para restaurar la velocidad después
+
+
 @onready var pivot: Node3D = $Pivot
 
 # --- Variables Internas ---
@@ -42,7 +55,7 @@ var time_passed: float = 0.0
 func _physics_process(delta: float) -> void:
 	# 1. Gravedad y suelo (Común a casi todos los estados)
 	_apply_gravity(delta)
-	
+	_boost_board(delta)
 	# 2. Máquina de Estados (Selección de lógica)
 	match current_state:
 		States.NORMAL:
@@ -102,6 +115,41 @@ func _apply_gravity(delta: float) -> void:
 		velocity.y -= 20.0 * delta
 	else:
 		velocity.y = 0
+
+func _boost_board(delta: float) -> void:
+	if cooldown_timer > 0:
+		cooldown_timer -= delta
+
+	# 2. Activar Boost
+	if Input.is_action_just_pressed("boost") and cooldown_timer <= 0 and not is_boosting:
+		_start_boost()
+
+	# 3. Lógica mientras el Boost está activo
+	if is_boosting:
+		boost_timer -= delta
+		# Efecto visual: Podrías aumentar el FOV de la cámara aquí
+		if boost_timer <= 0:
+			_stop_boost()
+
+func _start_boost() -> void:
+	is_boosting = true
+	boost_timer = boost_duration
+	cooldown_timer = boost_cooldown
+	
+	# Guardamos la velocidad original para no "romper" el script permanentemente
+	original_max_speed = max_speed 
+	
+	# Aplicamos el boost
+	max_speed = boost_max_speed
+	current_speed += boost_force # Empujón inicial instantáneo
+	
+	# Aquí es donde dispararías partículas o sonidos
+	print("BOOST ACTIVO!")
+
+func _stop_boost() -> void:
+	is_boosting = false
+	max_speed = original_max_speed
+	print("BOOST FINALIZADO")
 
 func _process_turning(turn_dir: float, is_braking: bool, delta: float) -> void:
 	if current_speed > 1.0:
