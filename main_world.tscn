@@ -3,7 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://bbb2ajnxdb583" path="res://scenes/world.tscn" id="1_vs84v"]
 [ext_resource type="PackedScene" uid="uid://trd066d5eji4" path="res://scenes/Board.tscn" id="2_ntstd"]
 [ext_resource type="PackedScene" uid="uid://bf8o6psioclkp" path="res://scenes/debug_canvas.tscn" id="3_43o5b"]
-[ext_resource type="PackedScene" uid="uid://p77c3icxmvrc" path="res://scenes/test_course.tscn" id="4_3etub"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4yea5"]
 sky_top_color = Color(0.640961, 0.701626, 0.786195, 1)
@@ -33,14 +32,23 @@ shadow_enabled = true
 [node name="Node3D" parent="." unique_id=797555847 instance=ExtResource("1_vs84v")]
 
 [node name="CharacterBody3D" parent="." unique_id=2130102268 instance=ExtResource("2_ntstd")]
-transform = Transform3D(4.5682554, 0, -0.3277775, 0, 4.5799994, 0, 0.3277775, 0, 4.5682554, 0, 2.4117231, 0)
+transform = Transform3D(-0.046042085, 0, 4.5797687, 0, 4.58, 0, -4.5797687, 0, -0.046042085, 0, 1.6905956, -225.43681)
 brake_rotation_amount = 0.8
 brake_rotation_speed = 7.0
 
 [node name="DebugCanvas" parent="." unique_id=1189168381 node_paths=PackedStringArray("player") instance=ExtResource("3_43o5b")]
 player = NodePath("../CharacterBody3D")
 
-[node name="TEST-1" parent="." unique_id=1401504092 instance=ExtResource("4_3etub")]
-transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, -43.3928, 0)
+[node name="PanelContainer" parent="DebugCanvas" index="0" unique_id=20606625]
+anchors_preset = 10
+anchor_right = 1.0
+offset_right = -1112.0
+grow_horizontal = 2
+
+[node name="HeatLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="2" unique_id=156054976]
+layout_mode = 2
+
+[node name="FuelLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="3" unique_id=64197772]
+layout_mode = 2
 
 [editable path="DebugCanvas"]
