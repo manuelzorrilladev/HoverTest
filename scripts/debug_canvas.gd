@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var rotation_label = $PanelContainer/VBoxContainer/RotationLabel 
 @onready var heat_label = $PanelContainer/VBoxContainer/HeatLabel 
 @onready var fuel_label = $PanelContainer/VBoxContainer/FuelLabel 
+@onready var boost_label = $PanelContainer/VBoxContainer/BoostLabel 
 
 
 @export var player: CharacterBody3D
@@ -39,11 +40,13 @@ func update_debug_ui() -> void:
 	var temperature = player.actual_heat
 	heat_label.text = "Temperatura: %.1f °" % temperature
 	
+	
 	var fuel = player.actual_fuel
 	var max_fuel = player.max_fuel
 	fuel_label.text = "Combustible: %.1f / %.1f" % [fuel,max_fuel]
 	
-	
+	var cooldown = player.cooldown_timer
+	boost_label.text = "Coldown: %.1f s" % cooldown
 
 func update_status_label() -> void:
 	# Obtenemos el nombre del estado usando la función keys() del Enum definido en el jugador

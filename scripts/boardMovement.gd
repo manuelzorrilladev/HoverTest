@@ -118,9 +118,33 @@ func _handle_fuel_consumption(delta: float) -> void:
 	
 	# 2. Lógica de Consumo de Combustible
 	if input_forward and actual_fuel > 0.0:
+		
 		actual_fuel = lerp(actual_fuel, 0.0, fuel_consumption_rate * delta)
 		if actual_fuel < 0.05:
 			actual_fuel = 0.0
+	
+
+
+func _handle_heat_accumulation(delta:float)-> void:
+	var input_forward = Input.is_action_pressed("move_foward")
+
+	var heat_rate = heat_accumulation_rate
+	# 2. Lógica de Consumo de Combustible
+	if input_forward and current_state != States.OVERHEAT and actual_fuel > 0.0:
+		if actual_heat > 70.0:
+			current_state = States.HEAT
+			heat_rate = heat_accumulation_rate * 1.5
+		if actual_heat == 100.0:
+			current_state = States.OVERHEAT
+		if actual_heat < 70.0:
+			current_state = States.NORMAL
+			heat_rate = heat_accumulation_rate
+		actual_heat = lerp(actual_heat, 0.0, heat_rate * delta)
+		
+	if not input_forward and actual_heat < 100.0:
+		actual_heat = lerp(actual_heat, 0.0, cooldown_rate * delta)
+	
+
 
 # MANEJO DE ESTADOS
 
@@ -131,18 +155,20 @@ func _handle_normal_state(delta: float) -> void:
 	var turn_dir = Input.get_axis("turn_right", "turn_left")
 	# 2. Lógica de Consumo de Combustible
 	_handle_fuel_consumption(delta)
-		
+	var max_speed_to_use = max_speed	
 		
 	# 3. Lógica de Velocidad y Aceleración
 	if input_forward and actual_fuel > 0.0 and not Input.is_action_pressed("brake"):
 		# Aceleración normal con combustible y sin frenar
-		current_speed = lerp(current_speed, max_speed, acceleration * delta)
+		max_speed_to_use = max_speed
+		current_speed = lerp(current_speed, max_speed_to_use, acceleration * delta)
 	
 	elif actual_fuel <= 0.0:
 		# --- SIN COMBUSTIBLE ---
 		# El vehículo desacelera de forma más drástica. 
 		# Puedes usar (friction * 1.5) o crear una variable externa llamada 'engine_brake_drag'
-		current_speed = lerp(current_speed, 0.0, (friction * 1.5) * delta)
+		max_speed_to_use = max_speed_to_use * 0.2
+		current_speed = lerp(current_speed, max_speed_to_use, (friction * 1.5) * delta)
 		
 	else:
 		# Desaceleración normal por inercia (soltó el acelerador pero tiene combustible)
@@ -151,9 +177,9 @@ func _handle_normal_state(delta: float) -> void:
 	
 	if Input.is_action_pressed("brake") and current_speed > stop_speed:
 		current_state = States.BRAKING
-	elif Input.is_action_just_pressed("boost"):
+	elif Input.is_action_just_pressed("boost") and cooldown_timer == 0:
 		current_state = States.BOOSTING
-
+	
 	# 5. Parada Absoluta
 	if current_speed < stop_speed:
 		current_speed = 0.0
@@ -178,6 +204,7 @@ func _handle_drifting_state(_delta: float) -> void:
 	pass
 
 func _handle_boosting_state(delta: float) -> void:
+	_handle_fuel_consumption(delta)
 	_boost_board(delta)
 
 
@@ -192,9 +219,9 @@ func _boost_board(delta: float) -> void:
 		cooldown_timer -= delta
 
 	# 2. Activar Boost
-	if Input.is_action_just_pressed("boost") and cooldown_timer <= 0 and not is_boosting and actual_fuel > 8.0:
+	if Input.is_action_just_pressed("boost") and cooldown_timer <= 0 and not is_boosting and actual_fuel > 12.0:
 		is_boosting = true
-		_handle_fuel_consumption(delta)
+		actual_fuel -= 10
 		boost_timer = boost_duration
 		cooldown_timer = boost_cooldown
 		original_max_speed = max_speed
@@ -202,7 +229,7 @@ func _boost_board(delta: float) -> void:
 	# Aplicamos el boost
 		max_speed = boost_max_speed
 		current_speed += boost_force
-		actual_fuel -= 10
+		
 	
 	# Aquí es donde dispararías partículas o sonidos
 	print("BOOST ACTIVO!")

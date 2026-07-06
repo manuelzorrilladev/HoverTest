@@ -43,12 +43,16 @@ player = NodePath("../CharacterBody3D")
 anchors_preset = 10
 anchor_right = 1.0
 offset_right = -1112.0
+offset_bottom = 104.0
 grow_horizontal = 2
 
 [node name="HeatLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="2" unique_id=156054976]
 layout_mode = 2
 
 [node name="FuelLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="3" unique_id=64197772]
+layout_mode = 2
+
+[node name="BoostLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="6" unique_id=1702465883]
 layout_mode = 2
 
 [editable path="DebugCanvas"]
