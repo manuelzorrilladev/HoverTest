@@ -1,71 +1,62 @@
 extends CanvasLayer
 
-@onready var velocidad_label = $PanelContainer/VBoxContainer/VelocidadLabel
-@onready var estado_label = $PanelContainer/VBoxContainer/EstadoLabel
-@onready var input_label = $PanelContainer/VBoxContainer/InputLabel
-@onready var rotation_label = $PanelContainer/VBoxContainer/RotationLabel 
-@onready var heat_label = $PanelContainer/VBoxContainer/HeatLabel 
-@onready var fuel_label = $PanelContainer/VBoxContainer/FuelLabel 
-@onready var boost_label = $PanelContainer/VBoxContainer/BoostLabel 
-
+# Ahora solo necesitas un único RichTextLabel que acepte BBCode
+@onready var debug_label = $PanelContainer/VBoxContainer/DebugLabel
 
 @export var player: CharacterBody3D
+
+# Diccionario interno donde guardaremos los datos dinámicamente
+var debug_data: Dictionary = {}
 
 func _process(_delta: float) -> void:
 	if not player: 
 		return
 	
-	update_debug_ui()
+	# 1. Recolectamos la información
+	collect_debug_data()
+	# 2. La mostramos en pantalla
+	render_debug_ui()
 
-func update_debug_ui() -> void:
-	# 1. Velocidad
-	var speed = player.velocity.length()
-	velocidad_label.text = "Velocidad: %.2f m/s" % speed
+func collect_debug_data() -> void:
+	# Aquí puedes meter CUALQUIER variable nueva sin crear nodos en la UI.
 	
-	# 2. Estado Finito (Leído del Enum del jugador)
-	update_status_label()
+	# 1. Velocidad
+	debug_data["Velocidad"] = "%.2f m/s" % player.velocity.length()
+	debug_data["Rotacion visual Z"] = "%.2f grados" % player.pivot.rotation.z
+	debug_data["Rotacion visual Y"] = "%.2f grados" % player.pivot.rotation.y
+	# 2. Estado (Manejamos el color internamente con BBCode si quieres)
+	var state_name = player.States.keys()[player.current_state]
+	var state_color = "white"
+	match player.current_state:
+		player.States.NORMAL: state_color = "cyan"
+		player.States.DRIFTING: state_color = "orange"
+		player.States.JUMPING, player.States.HEAT: state_color = "yellow"
+	
+	debug_data["Estado Físico"] = "[color=%s]%s[/color]" % [state_color, state_name]
 	
 	# 3. Inputs
 	var is_accelerating = Input.is_action_pressed("move_foward")
 	var turn_input = Input.get_axis("turn_right", "turn_left")
-	input_label.text = "Acelerando: %s | Input Giro: %.1f" % [is_accelerating, turn_input]
+	debug_data["Inputs"] = "Acelerando: %s | Giro: %.1f" % [is_accelerating, turn_input]
 	
-	# 4. Ángulo de Rotación (Y es el eje vertical en 3D)
-	# Usamos wrapf para que el valor siempre esté entre 0 y 360
+	# 4. Orientación
 	var current_angle = wrapf(player.rotation_degrees.y, 0, 360)
-	rotation_label.text = "Orientación: %.1f °" % current_angle
+	debug_data["Orientación"] = "%.1f °" % current_angle
 	
-	
-	#5. Calentamiento y combustible
-	var temperature = player.actual_heat
-	heat_label.text = "Temperatura: %.1f °" % temperature
-	
-	
-	var fuel = player.actual_fuel
-	var max_fuel = player.max_fuel
-	fuel_label.text = "Combustible: %.1f / %.1f" % [fuel,max_fuel]
-	
-	var cooldown = player.cooldown_timer
-	boost_label.text = "Coldown: %.1f s" % cooldown
+	# 5. Calentamiento y combustible
+	debug_data["Temperatura"] = "%.1f °" % player.actual_heat
+	debug_data["Combustible"] = "%.1f / %.1f" % [player.actual_fuel, player.max_fuel]
+	debug_data["Cooldown"] = "%.1f s" % player.cooldown_timer
 
-func update_status_label() -> void:
-	# Obtenemos el nombre del estado usando la función keys() del Enum definido en el jugador
-	var state_name = player.States.keys()[player.current_state]
+	# ¿Quieres añadir algo nuevo mañana? Solo haz esto:
+	# debug_data["Nueva Variable"] = player.mi_nueva_variable
+
+func render_debug_ui() -> void:
+	var final_text = ""
 	
-
-	var state_color = Color.WHITE
-	match player.current_state:
-		player.States.NORMAL:
-			state_color = Color.CYAN
-		player.States.DRIFTING:
-			state_color = Color.ORANGE
-		player.States.JUMPING:
-			state_color = Color.YELLOW
-		player.States.HEAT:
-			state_color = Color.YELLOW
-			
-	_set_status(state_name, state_color)
-
-func _set_status(text: String, color: Color) -> void:
-	estado_label.text = "Estado Físico: %s" % text
-	estado_label.modulate = color
+	# Recorremos el diccionario y armamos el bloque de texto completo
+	for key in debug_data.keys():
+		final_text += "[b]%s:[/b] %s\n" % [key, debug_data[key]]
+	
+	# Actualizamos el único label
+	debug_label.text = final_text

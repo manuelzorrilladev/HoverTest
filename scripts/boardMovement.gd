@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-enum States {NORMAL, BRAKING, BOOSTING, DRIFTING, JUMPING, HEAT, OVERHEAT}
+enum States {NORMAL, BRAKING, BOOSTING, DRIFTING, JUMPING, HEAT, OVERHEAT,NO_FUEL}
 
 # --- Variables de Control de Estado ---
 var current_state: States = States.NORMAL:
@@ -25,6 +25,11 @@ var current_state: States = States.NORMAL:
 @export var friction: float = 2.0
 @export var brake: float = 10.0
 @export var stop_speed: float = 0.5
+
+@export_group("Engine Vibration")
+@export var idle_vibration_amplitude: float = 0.005 # Qué tan sutil es la vibración en reposo
+@export var max_vibration_amplitude: float = 0.015  # Vibración máxima a máxima velocidad
+@export var vibration_speed: float = 60.0
 
 @export_group("Turn")
 @export var turn_speed: float = 3.0
@@ -169,6 +174,7 @@ func _handle_normal_state(delta: float) -> void:
 		# Puedes usar (friction * 1.5) o crear una variable externa llamada 'engine_brake_drag'
 		max_speed_to_use = max_speed_to_use * 0.2
 		current_speed = lerp(current_speed, max_speed_to_use, (friction * 1.5) * delta)
+		current_state = States.BRAKING
 		
 	else:
 		# Desaceleración normal por inercia (soltó el acelerador pero tiene combustible)
@@ -198,6 +204,16 @@ func _handle_braking_state(delta: float) -> void:
 	# Transiciones de salida
 	if not Input.is_action_pressed("brake") or current_speed <= stop_speed:
 		current_state = States.NORMAL
+
+func _handle_no_fuel_state(delta:float)->void:
+	var input_forward = Input.is_action_pressed("move_foward")
+	var max_speed_to_use = max_speed	
+
+
+	max_speed_to_use = max_speed_to_use * 0.2
+	current_speed = lerp(current_speed, max_speed_to_use, (friction * 1.5) * delta)
+
+
 
 
 func _handle_drifting_state(_delta: float) -> void:
@@ -283,14 +299,36 @@ func _apply_gravity(delta: float) -> void:
 func _update_visuals(dir: float, delta: float) -> void:
 	if not pivot: return
 	
-	# A. Inclinación lateral
+	# =========================================================
+	# NUEVO: CALCULAR VIBRACIÓN DINÁMICA DEL MOTOR
+	# =========================================================
+	# Determinamos la intensidad de la vibración según la velocidad actual
+	var speed_factor = current_speed / max_speed
+	var current_vibration_amplitude = lerp(idle_vibration_amplitude, max_vibration_amplitude, speed_factor)
+	
+	# Si el vehículo está completamente apagado (NO_FUEL) y detenido, apagamos la vibración
+	if current_state == States.NO_FUEL and current_speed <= stop_speed:
+		current_vibration_amplitude = 0.0
+		
+	# Generamos ondas desfasadas para que la vibración no sea una línea diagonal perfecta
+	var engine_vibration_x = sin(time_passed * vibration_speed) * current_vibration_amplitude
+	var engine_vibration_z = cos(time_passed * (vibration_speed * 0.9)) * current_vibration_amplitude
+	# =========================================================
+
+	# A. Inclinación lateral (Lean) + Vibración en Z
 	var target_tilt = dir * lean_amount
-	pivot.rotation.z = lerp(pivot.rotation.z, target_tilt, 5.0 * delta)
+	var final_tilt = lerp(pivot.rotation.z, target_tilt, 5.0 * delta)
+	pivot.rotation.z = final_tilt # <--- Añadimos vibración aquí
+	# pivot.rotation.z = final_tilt + engine_vibration_z # <--- Añadimos vibración aquí
 	
-	# B. Efecto Flotante
+	# B. Efecto Flotante (Oscilación Vertical Base)
 	var hover_offset = sin(time_passed * hover_speed) * hover_amplitude
+	pivot.position.y = base_pivot_height + hover_offset
 	
-	# C. Animación de Freno (Snowboard style)
+	# C. Vibración adicional en el cabeceo (X) para simular las revoluciones (RPM)
+	# pivot.rotation.x = engine_vibration_x # <--- Añadimos vibración aquí
+
+	# D. Animación de Freno (Snowboard style)
 	var is_braking_visually = Input.is_action_pressed("brake") and current_speed > 2.0
 	var target_brake_rotation = 0.0
 	
@@ -299,4 +337,3 @@ func _update_visuals(dir: float, delta: float) -> void:
 		pivot.rotation.z = lerp(pivot.rotation.z, lean_amount, 5.0 * delta)
 		
 	pivot.rotation.y = lerp(pivot.rotation.y, target_brake_rotation, brake_rotation_speed * delta)
-	pivot.position.y = base_pivot_height + hover_offset

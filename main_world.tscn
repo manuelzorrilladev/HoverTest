@@ -33,7 +33,8 @@ shadow_enabled = true
 
 [node name="CharacterBody3D" parent="." unique_id=2130102268 instance=ExtResource("2_ntstd")]
 transform = Transform3D(-0.046042085, 0, 4.5797687, 0, 4.58, 0, -4.5797687, 0, -0.046042085, 0, 1.6905956, -225.43681)
-brake_rotation_amount = 0.8
+hover_speed = 4.0
+brake_rotation_amount = 1.0
 brake_rotation_speed = 7.0
 
 [node name="DebugCanvas" parent="." unique_id=1189168381 node_paths=PackedStringArray("player") instance=ExtResource("3_43o5b")]
@@ -52,7 +53,13 @@ layout_mode = 2
 [node name="FuelLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="3" unique_id=64197772]
 layout_mode = 2
 
-[node name="BoostLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="6" unique_id=1702465883]
+[node name="bugLabel" type="Label" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="6" unique_id=1702465883]
 layout_mode = 2
 
+[node name="DebugLabel" type="RichTextLabel" parent="DebugCanvas/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1189168381, 463273066) index="7" unique_id=1032463406]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[editable path="CharacterBody3D"]
 [editable path="DebugCanvas"]
