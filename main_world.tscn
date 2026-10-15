@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://bbb2ajnxdb583" path="res://scenes/world.tscn" id="1_vs84v"]
 [ext_resource type="PackedScene" uid="uid://trd066d5eji4" path="res://scenes/Board.tscn" id="2_ntstd"]
 [ext_resource type="PackedScene" uid="uid://bf8o6psioclkp" path="res://scenes/debug_canvas.tscn" id="3_43o5b"]
+[ext_resource type="PackedScene" uid="uid://ci1lg2tefy7ud" path="res://assets/test-models/obstacles.glb" id="4_3etub"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4yea5"]
 sky_top_color = Color(0.640961, 0.701626, 0.786195, 1)
@@ -32,7 +33,7 @@ shadow_enabled = true
 [node name="Node3D" parent="." unique_id=797555847 instance=ExtResource("1_vs84v")]
 
 [node name="CharacterBody3D" parent="." unique_id=2130102268 instance=ExtResource("2_ntstd")]
-transform = Transform3D(-0.046042085, 0, 4.5797687, 0, 4.58, 0, -4.5797687, 0, -0.046042085, 0, 1.6905956, -225.43681)
+transform = Transform3D(-0.046042085, 0, 4.5797687, 0, 4.58, 0, -4.5797687, 0, -0.046042085, 0, 3.6019764, -225.43681)
 hover_speed = 4.0
 brake_rotation_amount = 1.0
 brake_rotation_speed = 7.0
@@ -60,6 +61,9 @@ layout_mode = 2
 layout_mode = 2
 bbcode_enabled = true
 fit_content = true
+
+[node name="obstacles" parent="." unique_id=497694478 instance=ExtResource("4_3etub")]
+transform = Transform3D(51.2852, 0, 0, 0, 71.29631, 0, 0, 0, 51.34571, 145.87758, 61.266205, 0)
 
 [editable path="CharacterBody3D"]
 [editable path="DebugCanvas"]

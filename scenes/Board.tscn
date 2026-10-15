@@ -17,9 +17,12 @@ max_speed = 20.0
 acceleration = 1.5
 friction = 0.5
 brake = 1.0
+max_vibration_amplitude = 0.007
+vibration_speed = 0.5
 brake_rotation_amount = 10.0
 brake_rotation_speed = 5.0
 boost_max_speed = 50.0
+drift_turn_multiplier = 1.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=564898361]
 transform = Transform3D(-4.371139e-08, -1, 4.371139e-08, 0, -4.371139e-08, -1, 1, -4.371139e-08, 1.9106855e-15, -0.0023290794, -1.0180734e-10, -0.029957175)

@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-enum States {NORMAL, BRAKING, BOOSTING, DRIFTING, JUMPING, HEAT, OVERHEAT,NO_FUEL}
+enum States {NORMAL, BRAKING, BOOSTING, DRIFTING, JUMPING, HEAT, OVERHEAT, NO_FUEL}
 
 # --- Variables de Control de Estado ---
 var current_state: States = States.NORMAL:
@@ -28,7 +28,7 @@ var current_state: States = States.NORMAL:
 
 @export_group("Engine Vibration")
 @export var idle_vibration_amplitude: float = 0.005 # Qué tan sutil es la vibración en reposo
-@export var max_vibration_amplitude: float = 0.015  # Vibración máxima a máxima velocidad
+@export var max_vibration_amplitude: float = 0.015 # Vibración máxima a máxima velocidad
 @export var vibration_speed: float = 60.0
 
 @export_group("Turn")
@@ -61,7 +61,12 @@ var current_state: States = States.NORMAL:
 @export var fuel_consumption_rate: float = 0.01
 @export var actual_heat: float = 0.0
 @export var heat_accumulation_rate: float = 1.0
-@export var cooldown_rate: float = 0.5
+@export var cooldown_rate: float = 0.2
+
+@export_group("Drift Arcade")
+@export var drift_turn_multiplier: float = 1.8 # Multiplicador de giro mientras derrapas (gira más rápido)
+@export var drift_friction: float = 0.8 # Qué tanto conserva la velocidad (menor a 1 = se desliza más)
+@export var drift_boost_force: float = 15.0 # Mini-impulso al salir exitosamente del derrape
 
 
 var boost_timer: float = 0.0
@@ -123,14 +128,15 @@ func _handle_fuel_consumption(delta: float) -> void:
 	
 	# 2. Lógica de Consumo de Combustible
 	if input_forward and actual_fuel > 0.0:
-		
 		actual_fuel = lerp(actual_fuel, 0.0, fuel_consumption_rate * delta)
 		if actual_fuel < 0.05:
 			actual_fuel = 0.0
+
+	if (actual_fuel == 0.0):
+		current_state = States.NO_FUEL
 	
 
-
-func _handle_heat_accumulation(delta:float)-> void:
+func _handle_heat_accumulation(delta: float) -> void:
 	var input_forward = Input.is_action_pressed("move_foward")
 
 	var heat_rate = heat_accumulation_rate
@@ -150,7 +156,6 @@ func _handle_heat_accumulation(delta:float)-> void:
 		actual_heat = lerp(actual_heat, 0.0, cooldown_rate * delta)
 	
 
-
 # MANEJO DE ESTADOS
 
 
@@ -160,24 +165,21 @@ func _handle_normal_state(delta: float) -> void:
 	var turn_dir = Input.get_axis("turn_right", "turn_left")
 	# 2. Lógica de Consumo de Combustible
 	_handle_fuel_consumption(delta)
-	var max_speed_to_use = max_speed	
+	var max_speed_to_use = max_speed
 		
 	# 3. Lógica de Velocidad y Aceleración
 	if input_forward and actual_fuel > 0.0 and not Input.is_action_pressed("brake"):
-		# Aceleración normal con combustible y sin frenar
 		max_speed_to_use = max_speed
 		current_speed = lerp(current_speed, max_speed_to_use, acceleration * delta)
 	
 	elif actual_fuel <= 0.0:
 		# --- SIN COMBUSTIBLE ---
-		# El vehículo desacelera de forma más drástica. 
-		# Puedes usar (friction * 1.5) o crear una variable externa llamada 'engine_brake_drag'
 		max_speed_to_use = max_speed_to_use * 0.2
 		current_speed = lerp(current_speed, max_speed_to_use, (friction * 1.5) * delta)
 		current_state = States.BRAKING
 		
 	else:
-		# Desaceleración normal por inercia (soltó el acelerador pero tiene combustible)
+		# Desaceleración normal por inercia 
 		current_speed = lerp(current_speed, 0.0, friction * delta)
 	
 	
@@ -185,6 +187,12 @@ func _handle_normal_state(delta: float) -> void:
 		current_state = States.BRAKING
 	elif Input.is_action_just_pressed("boost") and cooldown_timer == 0:
 		current_state = States.BOOSTING
+	elif Input.is_action_pressed("drift") and current_speed > stop_speed:
+		current_state = States.DRIFTING
+
+	else:
+		current_state = States.NORMAL
+		
 	
 	# 5. Parada Absoluta
 	if current_speed < stop_speed:
@@ -199,15 +207,15 @@ func _handle_braking_state(delta: float) -> void:
 	
 	# Frenado pesado
 	current_speed = lerp(current_speed, 0.0, brake * delta)
-	_process_turning(turn_dir, true, delta) # Se le pasa true para aplicar penalización
+	_process_turning(turn_dir, true, delta)
 	
 	# Transiciones de salida
 	if not Input.is_action_pressed("brake") or current_speed <= stop_speed:
 		current_state = States.NORMAL
 
-func _handle_no_fuel_state(delta:float)->void:
+func _handle_no_fuel_state(delta: float) -> void:
 	var input_forward = Input.is_action_pressed("move_foward")
-	var max_speed_to_use = max_speed	
+	var max_speed_to_use = max_speed
 
 
 	max_speed_to_use = max_speed_to_use * 0.2
@@ -215,9 +223,36 @@ func _handle_no_fuel_state(delta:float)->void:
 
 
 
+func _handle_drifting_state(delta: float) -> void:
+	if (Input.is_action_just_released("drift")) and current_state == States.DRIFTING:
+		current_state = States.NORMAL
+		return 
+	var turn_dir = Input.get_axis("turn_right", "turn_left")
+	var drift_input = Input.is_action_pressed("drift")
+	
+	# 1. Conservación de Velocidad / Fricción Ligera
+	# En arcade, no queremos que pierda mucha velocidad mientras derrapa
+	current_speed = lerp(current_speed, max_speed * 0.5, (friction * drift_friction) * delta)
+	
+	# 2. Giro Agresivo (Arcade Turn)
+	# Multiplicamos el giro para que la tabla/coche se ponga de lado fácilmente
+	var effective_turn = turn_dir * drift_turn_multiplier
+	current_turn_velocity = lerp(current_turn_velocity, effective_turn, turn_weight * delta)
+	
+	# Aplicamos la rotación
+	rotate_y(current_turn_velocity * turn_speed * delta)
+	
+	# 3. Transición de Salida (Cuándo termina el derrape)
+	# Si el jugador suelta el botón de freno/derrape o se detiene, vuelve al estado NORMAL
+	if not drift_input or current_speed < stop_speed:
+		_exit_drift_with_boost()
+		current_state = States.NORMAL
 
-func _handle_drifting_state(_delta: float) -> void:
-	pass
+# Función auxiliar para dar un "Mini-Boost" al terminar el derrape (Arcade style)
+func _exit_drift_with_boost() -> void:
+	current_speed = min(current_speed + drift_boost_force, max_speed)
+	print("¡Mini-Boost de salida!")
+
 
 func _handle_boosting_state(delta: float) -> void:
 	_handle_fuel_consumption(delta)
@@ -241,6 +276,7 @@ func _boost_board(delta: float) -> void:
 		boost_timer = boost_duration
 		cooldown_timer = boost_cooldown
 		original_max_speed = max_speed
+		vibration_speed += 50
 	
 	# Aplicamos el boost
 		max_speed = boost_max_speed
@@ -260,6 +296,7 @@ func _boost_board(delta: float) -> void:
 func _stop_boost() -> void:
 	is_boosting = false
 	max_speed = original_max_speed
+	vibration_speed -= 50
 	current_state = States.NORMAL
 	print("BOOST FINALIZADO")
 
@@ -318,15 +355,15 @@ func _update_visuals(dir: float, delta: float) -> void:
 	# A. Inclinación lateral (Lean) + Vibración en Z
 	var target_tilt = dir * lean_amount
 	var final_tilt = lerp(pivot.rotation.z, target_tilt, 5.0 * delta)
-	pivot.rotation.z = final_tilt # <--- Añadimos vibración aquí
-	# pivot.rotation.z = final_tilt + engine_vibration_z # <--- Añadimos vibración aquí
+	pivot.rotation.z = final_tilt + engine_vibration_z #
+	pivot.rotation.x = final_tilt + engine_vibration_x #
 	
 	# B. Efecto Flotante (Oscilación Vertical Base)
 	var hover_offset = sin(time_passed * hover_speed) * hover_amplitude
 	pivot.position.y = base_pivot_height + hover_offset
 	
 	# C. Vibración adicional en el cabeceo (X) para simular las revoluciones (RPM)
-	# pivot.rotation.x = engine_vibration_x # <--- Añadimos vibración aquí
+	pivot.rotation.x = engine_vibration_x # <--- Añadimos vibración aquí
 
 	# D. Animación de Freno (Snowboard style)
 	var is_braking_visually = Input.is_action_pressed("brake") and current_speed > 2.0
